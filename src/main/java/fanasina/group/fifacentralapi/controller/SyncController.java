@@ -17,7 +17,7 @@ public class SyncController {
 
     @PostMapping
     public ResponseEntity<String> synchronize() {
-        syncService.syncFromAllChampionships();  // Utilisation du bon nom de méthode
+        syncService.syncFromAllChampionships();
         return ResponseEntity.ok("Synchronization completed");
     }
 }

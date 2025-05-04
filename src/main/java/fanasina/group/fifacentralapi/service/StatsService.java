@@ -18,10 +18,10 @@ public class StatsService {
     public List<PlayerDto> getBestPlayers(Integer top, String timeUnit) {
         List<PlayerDto> players = syncService.getAllPlayers();
 
-        Comparator<PlayerDto> comparator = Comparator.comparingInt(p -> p.getGoals());
+        Comparator<PlayerDto> comparator = Comparator.comparingInt(PlayerDto::getGoals);
 
         if ("MINUTE".equalsIgnoreCase(timeUnit)) {
-            comparator = comparator.thenComparingInt(p -> p.getPlayingTime());
+            comparator = comparator.thenComparingInt(PlayerDto::getPlayingTime);
         }
 
         players.sort(comparator.reversed());
