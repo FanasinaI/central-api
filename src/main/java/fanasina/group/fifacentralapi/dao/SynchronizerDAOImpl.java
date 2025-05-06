@@ -1,0 +1,157 @@
+package fanasina.group.fifacentralapi.dao;
+
+import fanasina.group.fifacentralapi.dto.ClubDTO;
+import fanasina.group.fifacentralapi.dto.CoachDTO;
+import fanasina.group.fifacentralapi.dto.PlayerDTO;
+import fanasina.group.fifacentralapi.entity.ClubRanking;
+import fanasina.group.fifacentralapi.entity.PlayerRanking;
+import fanasina.group.fifacentralapi.enums.Championship;
+import fanasina.group.fifacentralapi.database.Datasource;
+import org.springframework.stereotype.Repository;
+
+import java.sql.*;
+import java.util.List;
+import java.util.UUID;
+
+@Repository
+public class SynchronizerDAOImpl implements SynchronizeDAO {
+    private final Datasource datasource;
+
+    public SynchronizerDAOImpl(Datasource datasource) {
+        this.datasource = datasource;
+    }
+
+    @Override
+    public void saveClubs(List<ClubDTO> clubs) {
+        String insertCoachSql = "INSERT INTO coach (id, name, nationality) VALUES (?, ?, ?) " +
+                "ON CONFLICT (id) DO NOTHING";
+
+        String insertClubSql = "INSERT INTO club (id, name, acronym, year_creation, stadium, coach_id) " +
+                "VALUES (?, ?, ?, ?, ?, ?) " +
+                "ON CONFLICT (id) DO NOTHING";
+
+        try (Connection conn = datasource.getConnection();
+             PreparedStatement coachStmt = conn.prepareStatement(insertCoachSql);
+             PreparedStatement clubStmt = conn.prepareStatement(insertClubSql)) {
+
+            for (ClubDTO club : clubs) {
+                CoachDTO coach = club.getCoach();
+                if (coach != null) {
+                    coachStmt.setObject(1, coach.getId());
+                    coachStmt.setString(2, coach.getName());
+                    coachStmt.setString(3, coach.getNationality());
+                    coachStmt.addBatch();
+                }
+
+                clubStmt.setObject(1, club.getId());
+                clubStmt.setString(2, club.getName());
+                clubStmt.setString(3, club.getAcronym());
+                clubStmt.setInt(4, club.getYearCreation());
+                clubStmt.setString(5, club.getStadium());
+                clubStmt.setObject(6, coach != null ? coach.getId() : null);
+                clubStmt.addBatch();
+            }
+
+            coachStmt.executeBatch();
+            clubStmt.executeBatch();
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur lors de la sauvegarde des clubs", e);
+        }
+    }
+
+    @Override
+    public void savePlayers(List<PlayerDTO> players) {
+        String sql = "INSERT INTO player (id, name, number, position, nationality, age, club_id) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?) " +
+                "ON CONFLICT (id) DO NOTHING";
+
+        try (Connection conn = datasource.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            for (PlayerDTO player : players) {
+                stmt.setObject(1, player.getId());
+                stmt.setString(2, player.getName());
+                stmt.setInt(3, player.getNumber());
+                stmt.setString(4, player.getPosition().name());
+                stmt.setString(5, player.getNationality());
+                stmt.setInt(6, player.getAge());
+                stmt.setObject(7, player.getClub() != null ? player.getClub().getId() : null);
+                stmt.addBatch();
+            }
+
+            stmt.executeBatch();
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur lors de la sauvegarde des joueurs", e);
+        }
+    }
+
+    @Override
+    public void saveClubRankings(List<ClubRanking> clubRankings, Championship championship, int seasonYear) {
+        String sql = "INSERT INTO club_ranking (" +
+                "id, championship_id, club_id, rank, ranking_points, " +
+                "scored_goals, conceded_goals, difference_goals, " +
+                "clean_sheet_number, season_year) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) " +
+                "ON CONFLICT (club_id, championship_id, season_year) " +
+                "DO UPDATE SET " +
+                "rank = EXCLUDED.rank, " +
+                "ranking_points = EXCLUDED.ranking_points, " +
+                "scored_goals = EXCLUDED.scored_goals, " +
+                "conceded_goals = EXCLUDED.conceded_goals, " +
+                "difference_goals = EXCLUDED.difference_goals, " +
+                "clean_sheet_number = EXCLUDED.clean_sheet_number";
+
+        try (Connection conn = datasource.getConnection()) {
+            conn.setAutoCommit(false);
+            UUID championshipId = getChampionshipIdByEnum(conn, championship);
+            if (championshipId == null) {
+                throw new RuntimeException("Championnat introuvable: " + championship);
+            }
+
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                for (ClubRanking cr : clubRankings) {
+                    stmt.clearParameters();
+                    stmt.setObject(1, UUID.randomUUID());
+                    stmt.setObject(2, championshipId);
+                    stmt.setObject(3, UUID.fromString(String.valueOf(cr.getClub().getId())));
+
+                    stmt.setInt(4, cr.getRank());
+                    stmt.setInt(5, cr.getRankingPoints());
+                    stmt.setInt(6, cr.getScoredGoals());
+                    stmt.setInt(7, cr.getConcededGoals());
+                    stmt.setInt(8, cr.getDifferenceGoals());
+                    stmt.setInt(9, cr.getCleanSheetNumber());
+                    stmt.setInt(10, seasonYear);
+
+                    stmt.addBatch();
+                }
+
+                stmt.executeBatch();
+                conn.commit();
+            } catch (SQLException e) {
+                conn.rollback();
+                throw new RuntimeException("Erreur lors de la sauvegarde des classements clubs", e);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur de connexion à la base de données", e);
+        }
+    }
+
+    @Override
+    public void savePlayerRankings(List<PlayerRanking> rankings, Championship championship, int seasonYear) {
+
+    }
+
+    private UUID getChampionshipIdByEnum(Connection conn, Championship championship) throws SQLException {
+        String query = "SELECT id FROM championship WHERE name = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, championship.name());
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return UUID.fromString(rs.getString("id"));
+                }
+            }
+        }
+        return null;
+    }
+}
