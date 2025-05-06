@@ -1,24 +1,29 @@
 package fanasina.group.fifacentralapi.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.util.UUID;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class ClubDTO {
     private UUID id;
     private String name;
-    private String acronym;  // Non unique (ex: "FCB" pour Barcelone et Bayern)
+    private String acronym;
     private int yearCreation;
     private String stadium;
-    private CoachDTO coach;  // Un club a un seul entraîneur
-    private String championshipName;  // Nom du championnat (ex: "LA_LIGA")
+    private CoachDTO coach;
+    private String championshipName;
 
-    // Constructeur pour la création sans ID
+    public ClubDTO() {}
+
+    public ClubDTO(UUID id, String name, String acronym, int yearCreation,
+                   String stadium, CoachDTO coach, String championshipName) {
+        this.id = id;
+        this.name = name;
+        this.acronym = acronym;
+        this.yearCreation = yearCreation;
+        this.stadium = stadium;
+        this.coach = coach;
+        this.championshipName = championshipName;
+    }
+
     public ClubDTO(String name, String acronym, int yearCreation,
                    String stadium, CoachDTO coach, String championshipName) {
         this.name = name;
@@ -28,4 +33,25 @@ public class ClubDTO {
         this.coach = coach;
         this.championshipName = championshipName;
     }
+
+    public UUID getId() { return id; }
+    public void setId(UUID id) { this.id = id; }
+
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+
+    public String getAcronym() { return acronym; }
+    public void setAcronym(String acronym) { this.acronym = acronym; }
+
+    public int getYearCreation() { return yearCreation; }
+    public void setYearCreation(int yearCreation) { this.yearCreation = yearCreation; }
+
+    public String getStadium() { return stadium; }
+    public void setStadium(String stadium) { this.stadium = stadium; }
+
+    public CoachDTO getCoach() { return coach; }
+    public void setCoach(CoachDTO coach) { this.coach = coach; }
+
+    public String getChampionshipName() { return championshipName; }
+    public void setChampionshipName(String championshipName) { this.championshipName = championshipName; }
 }

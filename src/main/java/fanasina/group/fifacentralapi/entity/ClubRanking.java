@@ -1,6 +1,7 @@
 package fanasina.group.fifacentralapi.entity;
 
 import fanasina.group.fifacentralapi.dto.ClubDTO;
+import fanasina.group.fifacentralapi.enums.Championship;
 import lombok.Data;
 
 @Data
@@ -13,6 +14,7 @@ public class ClubRanking {
     private int concededGoals;
     private int differenceGoals;
     private int cleanSheetNumber;
+    private Championship championship;
 
     public String getId() {
         return id;
@@ -77,4 +79,13 @@ public class ClubRanking {
     public void setCleanSheetNumber(int cleanSheetNumber) {
         this.cleanSheetNumber = cleanSheetNumber;
     }
+
+    public Championship getChampionship() {
+        return championship;
+    }
+
+    public void setChampionship(Championship championship) {
+        this.championship = championship;
+    }
+
 }

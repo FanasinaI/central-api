@@ -22,90 +22,96 @@ public class PlayerRankingDAOImpl implements PlayerRankingDAO {
 
     @Override
     public List<PlayerRanking> findAll() {
-        String sql = "SELECT * FROM player_ranking pr " +
+        String sql = "SELECT pr.id as pr_id, p.id as p_id, pt.id as pt_id, " +
+                "p.name, p.number, p.position, p.nationality, p.age, " +
+                "pr.championship, pr.scored_goals, " +
+                "pt.value, pt.duration_unit " +
+                "FROM player_ranking pr " +
                 "JOIN player p ON pr.player_id = p.id " +
-                "JOIN playing_time pt ON pr.playing_time_id = pt.id " +
-                "ORDER BY pr.rank ASC";
+                "JOIN playing_time pt ON pr.playing_time_id = pt.id";
         return executeQuery(sql);
     }
 
     @Override
     public List<PlayerRanking> findTopPlayers(int top) {
-        String sql = "SELECT * FROM player_ranking pr " +
+        String sql = "SELECT pr.id as pr_id, p.id as p_id, pt.id as pt_id, " +
+                "p.name, p.number, p.position, p.nationality, p.age, " +
+                "pr.championship, pr.scored_goals, " +
+                "pt.value, pt.duration_unit " +
+                "FROM player_ranking pr " +
                 "JOIN player p ON pr.player_id = p.id " +
                 "JOIN playing_time pt ON pr.playing_time_id = pt.id " +
-                "ORDER BY pr.rank ASC LIMIT ?";
-        return executeQueryWithTop(sql, top);
+                "ORDER BY pr.scored_goals DESC LIMIT ?";
+        return executeQuery(sql, top);
     }
 
     @Override
     public List<PlayerRanking> findPlayersByPlayingTimeUnit(DurationUnit unit) {
-        String sql = "SELECT * FROM player_ranking pr " +
+        String sql = "SELECT pr.id as pr_id, p.id as p_id, pt.id as pt_id, " +
+                "p.name, p.number, p.position, p.nationality, p.age, " +
+                "pr.championship, pr.scored_goals, " +
+                "pt.value, pt.duration_unit " +
+                "FROM player_ranking pr " +
                 "JOIN player p ON pr.player_id = p.id " +
                 "JOIN playing_time pt ON pr.playing_time_id = pt.id " +
-                "WHERE pt.duration_unit = ?::duration_unit " +
-                "ORDER BY pr.rank ASC";
-        return executeQueryWithUnit(sql, unit);
+                "WHERE pt.duration_unit = ?";
+        return executeQuery(sql, unit.name());
     }
 
     @Override
     public List<PlayerRanking> findTopPlayersByPlayingTimeUnit(int top, DurationUnit unit) {
-        String sql = "SELECT * FROM player_ranking pr " +
+        String sql = "SELECT pr.id as pr_id, p.id as p_id, pt.id as pt_id, " +
+                "p.name, p.number, p.position, p.nationality, p.age, " +
+                "pr.championship, pr.scored_goals, " +
+                "pt.value, pt.duration_unit " +
+                "FROM player_ranking pr " +
                 "JOIN player p ON pr.player_id = p.id " +
                 "JOIN playing_time pt ON pr.playing_time_id = pt.id " +
-                "WHERE pt.duration_unit = ?::duration_unit " +
-                "ORDER BY pr.rank ASC LIMIT ?";
-        return executeQueryWithTopAndUnit(sql, top, unit);
+                "WHERE pt.duration_unit = ? " +
+                "ORDER BY pr.scored_goals DESC LIMIT ?";
+        return executeQuery(sql, unit.name(), top);
     }
 
-    private List<PlayerRanking> executeQuery(String sql) {
-        List<PlayerRanking> players = new ArrayList<>();
-        try (Connection conn = datasource.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-
-            while (rs.next()) {
-                players.add(mapRowToPlayerRanking(rs));
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("Erreur lors de la récupération des joueurs", e);
-        }
-        return players;
-    }
-
-    private List<PlayerRanking> executeQueryWithTop(String sql, int top) {
-        List<PlayerRanking> players = new ArrayList<>();
+    private List<PlayerRanking> executeQuery(String sql, Object... params) {
+        List<PlayerRanking> rankings = new ArrayList<>();
         try (Connection conn = datasource.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setInt(1, top);
+            for (int i = 0; i < params.length; i++) {
+                stmt.setObject(i + 1, params[i]);
+            }
+
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    players.add(mapRowToPlayerRanking(rs));
+                    rankings.add(mapRowToPlayerRanking(rs));
                 }
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Erreur lors de la récupération des meilleurs joueurs", e);
+            throw new RuntimeException("Database error", e);
         }
-        return players;
+        return rankings;
     }
 
     private PlayerRanking mapRowToPlayerRanking(ResultSet rs) throws SQLException {
-        PlayerRanking player = new PlayerRanking();
-        player.setId(rs.getString("id"));
-        player.setName(rs.getString("name"));
-        player.setNumber(rs.getInt("number"));
-        player.setPosition(PlayerPosition.valueOf(rs.getString("position")));
-        player.setNationality(rs.getString("nationality"));
-        player.setAge(rs.getInt("age"));
-        player.setChampionship(Championship.valueOf(rs.getString("championship")));
-        player.setScoredGoals(rs.getInt("scored_goals"));
+        PlayerRanking ranking = new PlayerRanking();
 
+        // Mapping PlayerRanking
+        ranking.setId(rs.getString("pr_id"));
+        ranking.setName(rs.getString("name"));
+        ranking.setNumber(rs.getInt("number"));
+        ranking.setPosition(PlayerPosition.valueOf(rs.getString("position")));
+        ranking.setNationality(rs.getString("nationality"));
+        ranking.setAge(rs.getInt("age"));
+        ranking.setChampionship(Championship.valueOf(rs.getString("championship")));
+        ranking.setScoredGoals(rs.getInt("scored_goals"));
+
+        // Mapping PlayingTime
         PlayingTime playingTime = new PlayingTime();
+        playingTime.setId(rs.getString("pt_id"));
         playingTime.setValue(rs.getDouble("value"));
         playingTime.setDurationUnit(DurationUnit.valueOf(rs.getString("duration_unit")));
-        player.setPlayingTime(playingTime);
+        ranking.setPlayingTime(playingTime);
 
-        return player;
+        return ranking;
     }
 }

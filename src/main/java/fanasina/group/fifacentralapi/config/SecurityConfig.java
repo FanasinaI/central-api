@@ -6,12 +6,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class ApiKeyConfig {
-    @Bean
-    public FilterRegistrationBean<ApiKeyFilter> apiKeyFilterRegistration() {
+public class SecurityConfig {
+
+    public FilterRegistrationBean<ApiKeyFilter> apiKeyFilterRegistration(ApiKeyFilter filter) {
         FilterRegistrationBean<ApiKeyFilter> registration = new FilterRegistrationBean<>();
-        registration.setFilter(new ApiKeyFilter());
-        registration.addUrlPatterns("/api/central/*");
+        registration.setFilter(filter);
+        registration.addUrlPatterns("/api/*");
         registration.setOrder(1);
         return registration;
     }
