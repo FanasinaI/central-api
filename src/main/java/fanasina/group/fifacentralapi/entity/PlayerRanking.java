@@ -7,6 +7,7 @@ import lombok.Data;
 @Data
 public class PlayerRanking {
     private String id;
+    private int rank;
     private String name;
     private int number;
     private PlayerPosition position;
@@ -24,6 +25,12 @@ public class PlayerRanking {
         this.id = id;
     }
 
+    public int getRank() {
+        return rank;
+    }
+    public void setRank(int rank) {
+        this.rank = rank;
+    }
     public String getName() {
         return name;
     }

@@ -34,52 +34,83 @@ public class SynchronizerDAOImpl implements SynchronizeDAO {
              PreparedStatement coachStmt = conn.prepareStatement(insertCoachSql);
              PreparedStatement clubStmt = conn.prepareStatement(insertClubSql)) {
 
+            conn.setAutoCommit(false); // Démarrer une transaction
+
             for (ClubDTO club : clubs) {
+                // Validation des données obligatoires
+                if (club.getId() == null || club.getId().isEmpty()) {
+                    throw new IllegalArgumentException("Club ID cannot be null or empty");
+                }
+
                 CoachDTO coach = club.getCoach();
                 if (coach != null) {
-                    coachStmt.setObject(1, coach.getId());
+                    // Générer un UUID si l'ID du coach est null
+                    String coachId = coach.getId() != null && !coach.getId().isEmpty() ?
+                            coach.getId() :
+                            UUID.randomUUID().toString();
+
+                    coachStmt.setString(1, coachId);
                     coachStmt.setString(2, coach.getName());
                     coachStmt.setString(3, coach.getNationality());
                     coachStmt.addBatch();
+
+                    // Mettre à jour l'ID du coach dans le DTO pour référence
+                    coach.setId(coachId);
                 }
 
-                clubStmt.setObject(1, club.getId());
+                clubStmt.setString(1, club.getId());
                 clubStmt.setString(2, club.getName());
                 clubStmt.setString(3, club.getAcronym());
                 clubStmt.setInt(4, club.getYearCreation());
                 clubStmt.setString(5, club.getStadium());
-                clubStmt.setObject(6, coach != null ? coach.getId() : null);
+                clubStmt.setString(6, coach != null ? coach.getId() : null);
                 clubStmt.addBatch();
             }
 
+            // Exécuter les batches
             coachStmt.executeBatch();
             clubStmt.executeBatch();
+
+            conn.commit(); // Valider la transaction
         } catch (SQLException e) {
             throw new RuntimeException("Erreur lors de la sauvegarde des clubs", e);
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("Données invalides: " + e.getMessage(), e);
         }
     }
 
     @Override
     public void savePlayers(List<PlayerDTO> players) {
+        // Modifiez la requête SQL pour inclure le cast ::player_position
         String sql = "INSERT INTO player (id, name, number, position, nationality, age, club_id) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?) " +
+                "VALUES (?, ?, ?, ?::player_position, ?, ?, ?) " +  // Notez ?::player_position
                 "ON CONFLICT (id) DO NOTHING";
 
         try (Connection conn = datasource.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
+            conn.setAutoCommit(false);
+
             for (PlayerDTO player : players) {
-                stmt.setObject(1, player.getId());
+                if (player.getId() == null || player.getId().isEmpty()) {
+                    player.setId(UUID.randomUUID().toString());
+                }
+
+                stmt.setString(1, player.getId());
                 stmt.setString(2, player.getName());
                 stmt.setInt(3, player.getNumber());
+
+                // Pas besoin de modifier cette ligne, le cast se fait dans la requête SQL
                 stmt.setString(4, player.getPosition().name());
+
                 stmt.setString(5, player.getNationality());
                 stmt.setInt(6, player.getAge());
-                stmt.setObject(7, player.getClub() != null ? player.getClub().getId() : null);
+                stmt.setString(7, player.getClub() != null ? player.getClub().getId() : null);
                 stmt.addBatch();
             }
 
             stmt.executeBatch();
+            conn.commit();
         } catch (SQLException e) {
             throw new RuntimeException("Erreur lors de la sauvegarde des joueurs", e);
         }
@@ -103,7 +134,7 @@ public class SynchronizerDAOImpl implements SynchronizeDAO {
 
         try (Connection conn = datasource.getConnection()) {
             conn.setAutoCommit(false);
-            UUID championshipId = getChampionshipIdByEnum(conn, championship);
+            String championshipId = getChampionshipIdByEnum(conn, championship);
             if (championshipId == null) {
                 throw new RuntimeException("Championnat introuvable: " + championship);
             }
@@ -111,9 +142,9 @@ public class SynchronizerDAOImpl implements SynchronizeDAO {
             try (PreparedStatement stmt = conn.prepareStatement(sql)) {
                 for (ClubRanking cr : clubRankings) {
                     stmt.clearParameters();
-                    stmt.setObject(1, UUID.randomUUID());
-                    stmt.setObject(2, championshipId);
-                    stmt.setObject(3, UUID.fromString(String.valueOf(cr.getClub().getId())));
+                    stmt.setString(1, UUID.randomUUID().toString());
+                    stmt.setString(2, championshipId);
+                    stmt.setString(3, cr.getClub().getId());
 
                     stmt.setInt(4, cr.getRank());
                     stmt.setInt(5, cr.getRankingPoints());
@@ -139,16 +170,16 @@ public class SynchronizerDAOImpl implements SynchronizeDAO {
 
     @Override
     public void savePlayerRankings(List<PlayerRanking> rankings, Championship championship, int seasonYear) {
-
     }
 
-    private UUID getChampionshipIdByEnum(Connection conn, Championship championship) throws SQLException {
-        String query = "SELECT id FROM championship WHERE name = ?";
+    private String getChampionshipIdByEnum(Connection conn, Championship championship) throws SQLException {
+        String query = "SELECT id FROM championship WHERE name = ?::championship_name";
+
         try (PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, championship.name());
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    return UUID.fromString(rs.getString("id"));
+                    return rs.getString("id");
                 }
             }
         }

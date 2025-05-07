@@ -4,7 +4,7 @@ import fanasina.group.fifacentralapi.enums.PlayerPosition;
 import java.util.UUID;
 
 public class PlayerDTO {
-    private UUID id;
+    private String id;
     private String name;
     private int number;
     private PlayerPosition position;
@@ -14,7 +14,7 @@ public class PlayerDTO {
 
     public PlayerDTO() {}
 
-    public PlayerDTO(UUID id, String name, int number, PlayerPosition position,
+    public PlayerDTO(String id, String name, int number, PlayerPosition position,
                      String nationality, int age, ClubDTO club) {
         this.id = id;
         this.name = name;
@@ -35,8 +35,8 @@ public class PlayerDTO {
         this.club = club;
     }
 
-    public UUID getId() { return id; }
-    public void setId(UUID id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }

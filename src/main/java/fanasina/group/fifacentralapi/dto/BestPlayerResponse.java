@@ -5,6 +5,8 @@ import fanasina.group.fifacentralapi.enums.Championship;
 import fanasina.group.fifacentralapi.enums.PlayerPosition;
 
 public class BestPlayerResponse {
+    private int rank;
+    private String id;
     private String name;
     private int number;
     private PlayerPosition position;
@@ -16,8 +18,10 @@ public class BestPlayerResponse {
 
     public BestPlayerResponse() {}
 
-    public BestPlayerResponse(String name, int number, PlayerPosition position, String nationality,
+    public BestPlayerResponse(int rank,String id,String name, int number, PlayerPosition position, String nationality,
                               int age, Championship championship, int scoredGoals, PlayingTime playingTime) {
+        this.rank = rank;
+        this.id = id;
         this.name = name;
         this.number = number;
         this.position = position;
@@ -28,6 +32,18 @@ public class BestPlayerResponse {
         this.playingTime = playingTime;
     }
 
+    public int getRank() {
+        return rank;
+    }
+    public void setRank(int rank) {
+        this.rank = rank;
+    }
+    public String getId() {
+        return id;
+    }
+    public void setId(String id) {
+        this.id = id;
+    }
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
 

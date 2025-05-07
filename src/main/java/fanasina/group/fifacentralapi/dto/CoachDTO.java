@@ -3,13 +3,13 @@ package fanasina.group.fifacentralapi.dto;
 import java.util.UUID;
 
 public class CoachDTO {
-    private UUID id;
+    private String id;
     private String name;
     private String nationality;
 
     public CoachDTO() {}
 
-    public CoachDTO(UUID id, String name, String nationality) {
+    public CoachDTO(String id, String name, String nationality) {
         this.id = id;
         this.name = name;
         this.nationality = nationality;
@@ -20,8 +20,8 @@ public class CoachDTO {
         this.nationality = nationality;
     }
 
-    public UUID getId() { return id; }
-    public void setId(UUID id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }

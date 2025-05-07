@@ -1,6 +1,6 @@
 package fanasina.group.fifacentralapi.controller;
 
-import fanasina.group.fifacentralapi.dto.ChampionshipRankingResponse;
+import fanasina.group.fifacentralapi.dto.ChampionshipMedianResponse;
 import fanasina.group.fifacentralapi.service.ChampionshipRankingService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,8 +17,8 @@ public class ChampionshipController {
         this.rankingService = rankingService;
     }
 
-    @GetMapping("/rankings")
-    public List<ChampionshipRankingResponse> getRankings() {
-        return rankingService.getAllChampionshipRankings();
+    @GetMapping("/rankings/medians")
+    public List<ChampionshipMedianResponse> getChampionshipsByDifferenceGoalsMedian() {
+        return rankingService.getChampionshipsByDifferenceGoalsMedian();
     }
 }

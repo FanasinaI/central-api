@@ -3,7 +3,7 @@ package fanasina.group.fifacentralapi.dto;
 import java.util.UUID;
 
 public class ClubDTO {
-    private UUID id;
+    private String id;
     private String name;
     private String acronym;
     private int yearCreation;
@@ -13,7 +13,7 @@ public class ClubDTO {
 
     public ClubDTO() {}
 
-    public ClubDTO(UUID id, String name, String acronym, int yearCreation,
+    public ClubDTO(String id, String name, String acronym, int yearCreation,
                    String stadium, CoachDTO coach, String championshipName) {
         this.id = id;
         this.name = name;
@@ -34,8 +34,8 @@ public class ClubDTO {
         this.championshipName = championshipName;
     }
 
-    public UUID getId() { return id; }
-    public void setId(UUID id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }

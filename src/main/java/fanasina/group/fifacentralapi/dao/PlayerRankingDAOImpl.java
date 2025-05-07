@@ -22,9 +22,9 @@ public class PlayerRankingDAOImpl implements PlayerRankingDAO {
 
     @Override
     public List<PlayerRanking> findAll() {
-        String sql = "SELECT pr.id as pr_id, p.id as p_id, pt.id as pt_id, " +
+        String sql = "SELECT pr.id as pr_id, pr.rank, p.id as p_id, pt.id as pt_id, " +
                 "p.name, p.number, p.position, p.nationality, p.age, " +
-                "pr.championship, pr.scored_goals, " +
+                "pr.championship_id, pr.scored_goals, " + // Changé de championship à championship_id
                 "pt.value, pt.duration_unit " +
                 "FROM player_ranking pr " +
                 "JOIN player p ON pr.player_id = p.id " +
@@ -34,22 +34,22 @@ public class PlayerRankingDAOImpl implements PlayerRankingDAO {
 
     @Override
     public List<PlayerRanking> findTopPlayers(int top) {
-        String sql = "SELECT pr.id as pr_id, p.id as p_id, pt.id as pt_id, " +
+        String sql = "SELECT pr.id as pr_id, pr.rank, p.id as p_id, pt.id as pt_id, " +
                 "p.name, p.number, p.position, p.nationality, p.age, " +
-                "pr.championship, pr.scored_goals, " +
+                "pr.championship_id, pr.scored_goals, " + // Changé ici
                 "pt.value, pt.duration_unit " +
                 "FROM player_ranking pr " +
                 "JOIN player p ON pr.player_id = p.id " +
                 "JOIN playing_time pt ON pr.playing_time_id = pt.id " +
-                "ORDER BY pr.scored_goals DESC LIMIT ?";
+                "ORDER BY pr.rank ASC LIMIT ?";
         return executeQuery(sql, top);
     }
 
     @Override
     public List<PlayerRanking> findPlayersByPlayingTimeUnit(DurationUnit unit) {
-        String sql = "SELECT pr.id as pr_id, p.id as p_id, pt.id as pt_id, " +
+        String sql = "SELECT pr.id as pr_id, pr.rank, p.id as p_id, pt.id as pt_id, " +
                 "p.name, p.number, p.position, p.nationality, p.age, " +
-                "pr.championship, pr.scored_goals, " +
+                "pr.championship_id, pr.scored_goals, " + // Changé ici
                 "pt.value, pt.duration_unit " +
                 "FROM player_ranking pr " +
                 "JOIN player p ON pr.player_id = p.id " +
@@ -60,15 +60,15 @@ public class PlayerRankingDAOImpl implements PlayerRankingDAO {
 
     @Override
     public List<PlayerRanking> findTopPlayersByPlayingTimeUnit(int top, DurationUnit unit) {
-        String sql = "SELECT pr.id as pr_id, p.id as p_id, pt.id as pt_id, " +
+        String sql = "SELECT pr.id as pr_id, pr.rank, p.id as p_id, pt.id as pt_id, " +
                 "p.name, p.number, p.position, p.nationality, p.age, " +
-                "pr.championship, pr.scored_goals, " +
+                "pr.championship_id, pr.scored_goals, " + // Changé ici
                 "pt.value, pt.duration_unit " +
                 "FROM player_ranking pr " +
                 "JOIN player p ON pr.player_id = p.id " +
                 "JOIN playing_time pt ON pr.playing_time_id = pt.id " +
                 "WHERE pt.duration_unit = ? " +
-                "ORDER BY pr.scored_goals DESC LIMIT ?";
+                "ORDER BY pr.rank ASC LIMIT ?";
         return executeQuery(sql, unit.name(), top);
     }
 
@@ -97,12 +97,13 @@ public class PlayerRankingDAOImpl implements PlayerRankingDAO {
 
         // Mapping PlayerRanking
         ranking.setId(rs.getString("pr_id"));
+        ranking.setRank(rs.getInt("rank"));
         ranking.setName(rs.getString("name"));
         ranking.setNumber(rs.getInt("number"));
         ranking.setPosition(PlayerPosition.valueOf(rs.getString("position")));
         ranking.setNationality(rs.getString("nationality"));
         ranking.setAge(rs.getInt("age"));
-        ranking.setChampionship(Championship.valueOf(rs.getString("championship")));
+        ranking.setChampionship(Championship.fromId(rs.getInt("championship_id"))); // Modification ici
         ranking.setScoredGoals(rs.getInt("scored_goals"));
 
         // Mapping PlayingTime

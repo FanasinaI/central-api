@@ -1,6 +1,5 @@
 package fanasina.group.fifacentralapi.controller;
 
-
 import fanasina.group.fifacentralapi.dto.BestPlayerResponse;
 import fanasina.group.fifacentralapi.dto.ChampionshipRankingResponse;
 import fanasina.group.fifacentralapi.enums.DurationUnit;
@@ -28,8 +27,8 @@ public class CentralController {
     }
 
     @PostMapping("/synchronization")
-    public void synchronizeData(@RequestHeader("X-API-KEY") String apiKey) {
-        synchronizationService.synchronize(apiKey);
+    public void synchronizeData() {
+        synchronizationService.synchronize();
     }
 
     @GetMapping("/bestPlayers")
