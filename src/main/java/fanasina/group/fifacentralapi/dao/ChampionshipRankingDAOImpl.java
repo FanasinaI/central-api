@@ -51,7 +51,6 @@ public class ChampionshipRankingDAOImpl implements ChampionshipRankingDAO {
         ranking.setDifferenceGoals(rs.getInt("difference_goals"));
         ranking.setCleanSheetNumber(rs.getInt("clean_sheet_number"));
 
-        // Conversion du championship_id (int) vers l'enum Championship
         int championshipId = rs.getInt("championship_id");
         ranking.setChampionship(Championship.fromId(championshipId));
 

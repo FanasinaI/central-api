@@ -41,7 +41,7 @@ public class PlayerRankingService {
 
     private BestPlayerResponse mapPlayerRankingToResponse(PlayerRanking ranking) {
         BestPlayerResponse response = new BestPlayerResponse();
-        response.setRank(ranking.getRank());  // Ajout du rank
+        response.setRank(ranking.getRank());
         response.setId(ranking.getId());
         response.setName(ranking.getName());
         response.setNumber(ranking.getNumber());

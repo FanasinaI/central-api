@@ -95,7 +95,6 @@ public class PlayerRankingDAOImpl implements PlayerRankingDAO {
     private PlayerRanking mapRowToPlayerRanking(ResultSet rs) throws SQLException {
         PlayerRanking ranking = new PlayerRanking();
 
-        // Mapping PlayerRanking
         ranking.setId(rs.getString("pr_id"));
         ranking.setRank(rs.getInt("rank"));
         ranking.setName(rs.getString("name"));
@@ -103,10 +102,9 @@ public class PlayerRankingDAOImpl implements PlayerRankingDAO {
         ranking.setPosition(PlayerPosition.valueOf(rs.getString("position")));
         ranking.setNationality(rs.getString("nationality"));
         ranking.setAge(rs.getInt("age"));
-        ranking.setChampionship(Championship.fromId(rs.getInt("championship_id"))); // Modification ici
+        ranking.setChampionship(Championship.fromId(rs.getInt("championship_id")));
         ranking.setScoredGoals(rs.getInt("scored_goals"));
 
-        // Mapping PlayingTime
         PlayingTime playingTime = new PlayingTime();
         playingTime.setId(rs.getString("pt_id"));
         playingTime.setValue(rs.getDouble("value"));

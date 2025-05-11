@@ -79,7 +79,6 @@ public class SynchronizationService {
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList());
 
-            // Sauvegarde des données
             synchronizeDAO.saveClubs(clubDTOs);
             synchronizeDAO.savePlayers(playerDTOs);
             synchronizeDAO.saveClubRankings(clubRankings, championship, 2024);

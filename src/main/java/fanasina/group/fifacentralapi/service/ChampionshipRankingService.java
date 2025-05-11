@@ -21,14 +21,12 @@ public class ChampionshipRankingService {
     public List<ChampionshipMedianResponse> getChampionshipsByDifferenceGoalsMedian() {
         List<ClubRanking> rankings = rankingDAO.findAll();
 
-        // Grouper les différences de buts par championnat
         Map<Championship, List<Integer>> differencesByChampionship = rankings.stream()
                 .collect(Collectors.groupingBy(
                         ClubRanking::getChampionship,
                         Collectors.mapping(ClubRanking::getDifferenceGoals, Collectors.toList())
                 ));
 
-        // Calculer la médiane pour chaque championnat
         List<ChampionshipMedianResponse> response = differencesByChampionship.entrySet().stream()
                 .map(entry -> {
                     List<Integer> differences = entry.getValue();
@@ -47,7 +45,6 @@ public class ChampionshipRankingService {
                 .sorted(Comparator.comparingDouble(ChampionshipMedianResponse::getDifferenceGoalsMedian))
                 .collect(Collectors.toList());
 
-        // Ajouter le rang (0 étant le meilleur)
         for (int i = 0; i < response.size(); i++) {
             response.get(i).setRank(i);
         }
