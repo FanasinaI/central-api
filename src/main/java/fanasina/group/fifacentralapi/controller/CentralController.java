@@ -31,24 +31,24 @@ public class CentralController {
         synchronizationService.synchronize();
     }
 
-    @GetMapping("/bestPlayers")
+    /*@GetMapping("/bestPlayers")
     public List<BestPlayerResponse> getBestPlayers(
             @RequestParam(required = false) Integer top,
             @RequestParam(required = false) DurationUnit playingTimeUnit) {
 
         if (top != null && playingTimeUnit != null) {
-            return playerRankingService.getBestPlayersWithFilters(top, playingTimeUnit);
-        } else if (top != null) {
-            return playerRankingService.getBestPlayersWithTopFilter(top);
-        } else if (playingTimeUnit != null) {
-            return playerRankingService.getBestPlayersWithPlayingTimeFilter(playingTimeUnit);
-        } else {
-            return playerRankingService.getAllBestPlayers();
-        }
+        return playerRankingService.getBestPlayersWithFilters(top, playingTimeUnit);
+    } else if (top != null) {
+        return playerRankingService.getBestPlayersWithTopFilter(top);
+    } else if (playingTimeUnit != null) {
+        return playerRankingService.getBestPlayersWithPlayingTimeFilter(playingTimeUnit);
+    } else {
+        return playerRankingService.getAllBestPlayers();
     }
+}
 
     @GetMapping("/championshipRankings")
     public List<ChampionshipRankingResponse> getChampionshipRankings() {
         return championshipRankingService.getAllChampionshipRankings();
-    }
+    }*/
 }

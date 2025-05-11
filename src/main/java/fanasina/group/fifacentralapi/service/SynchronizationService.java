@@ -48,7 +48,6 @@ public class SynchronizationService {
             ClubRanking[] clubStatsArray = restTemplate.getForObject(clubStatsUrl, ClubRanking[].class);
             List<ClubRanking> clubRankings = clubStatsArray != null ? List.of(clubStatsArray) : List.of();
 
-            // Traitement des joueurs
             List<PlayerRanking> playerRankings = playerDTOs.stream()
                     .map(player -> {
                         try {

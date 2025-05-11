@@ -24,7 +24,7 @@ public class PlayerRankingDAOImpl implements PlayerRankingDAO {
     public List<PlayerRanking> findAll() {
         String sql = "SELECT pr.id as pr_id, pr.rank, p.id as p_id, pt.id as pt_id, " +
                 "p.name, p.number, p.position, p.nationality, p.age, " +
-                "pr.championship_id, pr.scored_goals, " + // Changé de championship à championship_id
+                "pr.championship_id, pr.scored_goals, " +
                 "pt.value, pt.duration_unit " +
                 "FROM player_ranking pr " +
                 "JOIN player p ON pr.player_id = p.id " +
@@ -36,7 +36,7 @@ public class PlayerRankingDAOImpl implements PlayerRankingDAO {
     public List<PlayerRanking> findTopPlayers(int top) {
         String sql = "SELECT pr.id as pr_id, pr.rank, p.id as p_id, pt.id as pt_id, " +
                 "p.name, p.number, p.position, p.nationality, p.age, " +
-                "pr.championship_id, pr.scored_goals, " + // Changé ici
+                "pr.championship_id, pr.scored_goals, " +
                 "pt.value, pt.duration_unit " +
                 "FROM player_ranking pr " +
                 "JOIN player p ON pr.player_id = p.id " +
@@ -62,7 +62,7 @@ public class PlayerRankingDAOImpl implements PlayerRankingDAO {
     public List<PlayerRanking> findTopPlayersByPlayingTimeUnit(int top, DurationUnit unit) {
         String sql = "SELECT pr.id as pr_id, pr.rank, p.id as p_id, pt.id as pt_id, " +
                 "p.name, p.number, p.position, p.nationality, p.age, " +
-                "pr.championship_id, pr.scored_goals, " + // Changé ici
+                "pr.championship_id, pr.scored_goals, " +
                 "pt.value, pt.duration_unit " +
                 "FROM player_ranking pr " +
                 "JOIN player p ON pr.player_id = p.id " +

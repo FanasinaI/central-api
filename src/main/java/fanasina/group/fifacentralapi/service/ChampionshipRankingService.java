@@ -26,8 +26,7 @@ public class ChampionshipRankingService {
                         ClubRanking::getChampionship,
                         Collectors.mapping(ClubRanking::getDifferenceGoals, Collectors.toList())
                 ));
-
-        List<ChampionshipMedianResponse> response = differencesByChampionship.entrySet().stream()
+        List<ChampionshipMedianResponse> responses = differencesByChampionship.entrySet().stream()
                 .map(entry -> {
                     List<Integer> differences = entry.getValue();
                     Collections.sort(differences);
@@ -44,12 +43,22 @@ public class ChampionshipRankingService {
                 })
                 .sorted(Comparator.comparingDouble(ChampionshipMedianResponse::getDifferenceGoalsMedian))
                 .collect(Collectors.toList());
+        if (!responses.isEmpty()) {
+            responses.get(0).setRank(1);
 
-        for (int i = 0; i < response.size(); i++) {
-            response.get(i).setRank(i);
+            for (int i = 1; i < responses.size(); i++) {
+                ChampionshipMedianResponse current = responses.get(i);
+                ChampionshipMedianResponse previous = responses.get(i-1);
+
+                if (current.getDifferenceGoalsMedian() == previous.getDifferenceGoalsMedian()) {
+                    current.setRank(previous.getRank());
+                } else {
+                    current.setRank(i + 1);
+                }
+            }
         }
 
-        return response;
+        return responses;
     }
 
     public List<ChampionshipRankingResponse> getAllChampionshipRankings() {
