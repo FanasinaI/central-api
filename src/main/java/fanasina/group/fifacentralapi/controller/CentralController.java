@@ -31,7 +31,7 @@ public class CentralController {
         synchronizationService.synchronize();
     }
 
-    /*@GetMapping("/bestPlayers")
+    @GetMapping("/bestPlayers")
     public List<BestPlayerResponse> getBestPlayers(
             @RequestParam(required = false) Integer top,
             @RequestParam(required = false) DurationUnit playingTimeUnit) {
@@ -50,5 +50,5 @@ public class CentralController {
     @GetMapping("/championshipRankings")
     public List<ChampionshipRankingResponse> getChampionshipRankings() {
         return championshipRankingService.getAllChampionshipRankings();
-    }*/
+    }
 }

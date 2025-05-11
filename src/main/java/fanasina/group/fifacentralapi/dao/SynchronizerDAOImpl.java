@@ -130,12 +130,17 @@ public class SynchronizerDAOImpl implements SynchronizeDAO {
         try (Connection conn = datasource.getConnection()) {
             conn.setAutoCommit(false);
             int championshipId = getChampionshipIdByEnum(conn, championship);
-            if (false) {
+            if (championshipId == 0) {
                 throw new RuntimeException("Championnat introuvable: " + championship);
             }
 
             try (PreparedStatement stmt = conn.prepareStatement(sql)) {
                 for (ClubRanking cr : clubRankings) {
+                    // Skip if club is null
+                    if (cr.getClub() == null || cr.getClub().getId() == null) {
+                        continue;
+                    }
+
                     stmt.clearParameters();
                     stmt.setString(1, UUID.randomUUID().toString());
                     stmt.setInt(2, championshipId);
@@ -261,4 +266,5 @@ public class SynchronizerDAOImpl implements SynchronizeDAO {
             }
         }
         return 0;
-    }}
+    }
+}
